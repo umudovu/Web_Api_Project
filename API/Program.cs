@@ -8,10 +8,12 @@ ConfigurationManager config = builder.Configuration;
 builder.Services.AddDbContext<DataContext>(options=>{
     options.UseSqlite(config.GetConnectionString("DefaultConnection"));
 });
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -23,6 +25,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors(x=>x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost/5001"));
 
 app.UseAuthorization();
 
