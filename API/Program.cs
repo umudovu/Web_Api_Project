@@ -1,19 +1,27 @@
+using System.Text;
 using API.Data;
+using API.Extentions;
+using API.Interfaces;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager config = builder.Configuration;
 // Add services to the container.
 
-builder.Services.AddDbContext<DataContext>(options=>{
-    options.UseSqlite(config.GetConnectionString("DefaultConnection"));
-});
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddApplicationServices(config);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddIdentityServices(config);
 builder.Services.AddEndpointsApiExplorer();
+    
 builder.Services.AddSwaggerGen();
-builder.Services.AddCors();
+
 
 var app = builder.Build();
 
@@ -26,9 +34,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
-
-app.UseCors(x=>x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost/5001"));
+app.UseAuthentication();
 
 app.UseAuthorization();
 
