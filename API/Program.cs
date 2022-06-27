@@ -2,6 +2,7 @@ using System.Text;
 using API.Data;
 using API.Extentions;
 using API.Interfaces;
+using API.Midddleware;
 using API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager config = builder.Configuration;
 // Add services to the container.
 
-builder.Services.AddScoped<ITokenService, TokenService>();
+
 
 builder.Services.AddApplicationServices(config);
 
@@ -19,18 +20,39 @@ builder.Services.AddControllers();
 
 builder.Services.AddIdentityServices(config);
 builder.Services.AddEndpointsApiExplorer();
-    
+
 builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//seed
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var context = services.GetRequiredService<DataContext>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedUser(context);
+
 }
+catch (Exception ex)
+{
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred during migration");
+}
+
+//Configure the HTTP request pipeline.
+
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
