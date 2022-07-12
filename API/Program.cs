@@ -5,7 +5,9 @@ using API.Extentions;
 using API.Interfaces;
 using API.Midddleware;
 using API.Services;
+using API.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,6 +23,7 @@ builder.Services.AddApplicationServices(config);
 builder.Services.AddControllers();
 
 builder.Services.AddIdentityServices(config);
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
@@ -57,6 +60,12 @@ catch (Exception ex)
 
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();
+app.UseRouting();
+app.UseCors(x=>x.AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
+    .WithOrigins("https:localhost:4200"));
 
 app.UseHttpsRedirection();
 
@@ -64,6 +73,12 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.UseEndpoints(endpoint=>
+{
+    endpoint.MapControllers();
+    endpoint.MapHub<PresenceHub>("hubs/presence");
+    endpoint.MapHub<MessageHub>("hubs/message");
+});
+
 
 app.Run();
