@@ -10,13 +10,13 @@ namespace API.Services
     {
         private readonly Cloudinary? _cloudinary;
 
-        public PhotoService(IOptions<CloudinarySettings> config)
+        public PhotoService()
         {
             var acc = new Account
-            (   
-                config.Value.CloudName,
-                config.Value.ApiKey,
-                config.Value.ApiSecret
+            (
+                "webapi",
+                "592423288134115",
+                "IiyJX9O34h4qbQnd_pKvgelulFo"
 
             );
             _cloudinary = new Cloudinary(acc);
