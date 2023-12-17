@@ -1,5 +1,5 @@
 {
-  "name": "dateingapp",
+  "name": "client",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:dateingapp": "node dist/dateingapp/server/server.mjs"
+    "serve:ssr:client": "node dist/client/server/server.mjs"
   },
   "private": true,
   "dependencies": {
